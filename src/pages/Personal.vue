@@ -59,6 +59,7 @@
   </main>
 </template>
 
+
 <script setup>
 import Header from '../components/Header.vue';
 import { useRouter} from 'vue-router'
@@ -215,11 +216,6 @@ form hr {
   color: var(--warning);
 }
 
-.next-btn{
-  background: transparent;
-  border: none;
-  cursor: pointer;  
-}
 
 .error-box{
   width: fit-content;

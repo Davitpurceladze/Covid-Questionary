@@ -21,7 +21,12 @@ body {
   --dark: #000000;
   --warning: #626262;
   --error:  #F15524;
+}
 
+.next-btn{
+  background: transparent;
+  border: none;
+  cursor: pointer;  
 }
 
 
