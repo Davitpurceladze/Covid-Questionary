@@ -21,7 +21,11 @@ body {
   --dark: #000000;
   --warning: #626262;
   --error:  #F15524;
-  --link: #1289AE
+  --link: #1289AE;
+  --finishBtn:  #208298;
+  --finishBtnText:#FFFFFF;
+
+
 }
 
 .next-btn{

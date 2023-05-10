@@ -141,7 +141,7 @@ const vaccineStatusError = () => {
   }
 }
 watch(vaccine_status, () =>{
-  if(vaccine_status !== ''){
+  if(vaccine_status.value !== ''){
     vaccineErrorMessage.value = true
   }
 })

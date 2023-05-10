@@ -26,11 +26,11 @@
         </div>
         <div class="input-box">
           <input
-            v-model="covid_status"
-            id="covid_now"
-            name="covid_status"
-            type="radio"
-            value="covid_now"
+          v-model="covid_status"
+          id="covid_now"
+          name="covid_status"
+          type="radio"
+          value="covid_now"
           >
           <label for="covid_now">ახლა მაქვს</label> 
         </div>
@@ -109,7 +109,6 @@ const covid_status = ref('')
 const test_status = ref('')
 const covidErrorMessage = ref(null)
 
- 
 
 const covidStatusError = () => {
   if(covid_status.value === '') {
