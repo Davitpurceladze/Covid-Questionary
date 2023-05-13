@@ -104,7 +104,7 @@
 
 <script setup>
 import Header from '../components/Header.vue';
-import {ref, watch} from 'vue'
+import {ref, watch, onMounted} from 'vue'
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
@@ -180,6 +180,29 @@ const onNextPage = () => {
 const onPreviousPage = () => {
   router.push('/personal')
 }
+
+onMounted(() => {
+  if(localStorage.getItem('had_covid')) {
+    covid_status.value = localStorage.getItem('had_covid')
+  }
+
+  if(localStorage.getItem('had_antibody_test')){
+    test_status.value = localStorage.getItem('had_antibody_test')
+  }
+
+  if(localStorage.getItem('covid_sickness_date')){
+    covid_date.value = localStorage.getItem('covid_sickness_date')
+  }
+
+  if(localStorage.getItem('antibodies_test_date')){
+    antibodies_test_date.value = localStorage.getItem('antibodies_test_date')
+  }
+
+  if(localStorage.getItem('antibodies_amount')){
+    antibodies_amount.value = localStorage.getItem('antibodies_amount')
+  }
+    
+})
 
 
 </script>
