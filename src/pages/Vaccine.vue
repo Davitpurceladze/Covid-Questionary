@@ -10,7 +10,7 @@
             id="vaccine_yes"
             name="vaccine_status"
             type="radio"
-            value="vaccine_yes"
+            value="true"
           >
           <label for="vaccine_yes">კი</label>
         </div>
@@ -20,14 +20,14 @@
             id="vaccine_no"
             name="vaccine_status"
             type="radio"
-            value="vaccine_no"
+            value="false"
           >
           <label for="vaccine_no">არა</label>
         </div>
-        <h2 class="test-question" :class="{active: vaccine_status === 'vaccine_yes'}">აირჩიე რა ეტაპზე ხარ*</h2>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_yes'}">
+        <h2 class="test-question" :class="{active: vaccine_status === 'true'},{errorMessage: vaccinationStageErrorMessage === false}">აირჩიე რა ეტაპზე ხარ*</h2>
+        <div class="input-box test-box" :class="{active: vaccine_status === 'true'}">
           <input
-            v-model="vaccine_stage"
+            v-model="vaccination_stage"
             id="first_dosage_and_registered_on_the_second"
             name="vaccine_stage"
             type="radio"
@@ -35,9 +35,9 @@
           >
           <label for="first_dosage_and_registered_on_the_second">პირველი დოზა და დარეგისტრირებული ვარ მეორეზე</label>
         </div>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_yes'}">
+        <div class="input-box test-box" :class="{active: vaccine_status === 'true'}">
           <input
-            v-model="vaccine_stage"
+            v-model="vaccination_stage"
             id="fully_vaccinated"
             name="vaccine_stage"
             type="radio"
@@ -45,9 +45,9 @@
           >
           <label for="fully_vaccinated">სრულად აცრილი ვარ</label>
         </div>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_yes'}">
+        <div class="input-box test-box" :class="{active: vaccine_status === 'true'}">
           <input
-            v-model="vaccine_stage"
+            v-model="vaccination_stage"
             id="first_dosage_and_not_registered_yet"
             name="vaccine_stage"
             type="radio"
@@ -56,13 +56,13 @@
           <label for="first_dosage_and_not_registered_yet">პირველი დოზა და არ დავრეგისტრირებულვარ მეორეზე</label>
         </div>
         <p class="test-question" 
-        :class="{active: vaccine_status === 'vaccine_yes' && vaccine_stage === 'first_dosage_and_not_registered_yet'}"
+        :class="{active: vaccine_status === 'true' && vaccination_stage === 'first_dosage_and_not_registered_yet'}"
         >
            რომ არ გადადო, <br/>ბარემ ახლავე დარეგისტრირდი <br/> 
           <span> https://booking.moh.gov.ge/</span>
         </p>
-        <h2 class="test-question" :class="{active: vaccine_status === 'vaccine_no'}">რას ელოდები?*</h2>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_no'}">
+        <h2 class="test-question" :class="{active: vaccine_status === 'false'},{errorMessage: waitingForErrorMessage === false}">რას ელოდები?*</h2>
+        <div class="input-box test-box" :class="{active: vaccine_status === 'false'}">
           <input
             v-model="waiting_for"
             id="registered_and_waiting"
@@ -72,7 +72,7 @@
           >
           <label for="registered_and_waiting">დარეგისტრირებული ვარ და ველოდები რიცხვს</label>
         </div>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_no'}">
+        <div class="input-box test-box" :class="{active: vaccine_status === 'false'}">
           <input
             v-model="waiting_for"
             id="not_planning"
@@ -82,7 +82,7 @@
           >
           <label for="not_planning">არ ვგეგმავ</label>
         </div>
-        <div class="input-box test-box" :class="{active: vaccine_status === 'vaccine_no'}">
+        <div class="input-box test-box" :class="{active: vaccine_status === 'false'}">
           <input
             v-model="waiting_for"
             id="had_covid_and_planning_to_be_vaccinated"
@@ -93,7 +93,7 @@
           <label for="had_covid_and_planning_to_be_vaccinated">გადატანილი მაქვს და ვგეგმავ აცრას</label>
         </div>
         <p class="test-question" 
-        :class="{active: vaccine_status === 'vaccine_no' && waiting_for === 'had_covid_and_planning_to_be_vaccinated'}"
+        :class="{active: vaccine_status === 'false' && waiting_for === 'had_covid_and_planning_to_be_vaccinated'}"
         >
           ახალი პროტოკოლით კოვიდის გადატანიდან 1 <br/> თვის შემდეგ შეგიძლიათ ვაქცინის გაკეთება.  
           <br/>
@@ -121,16 +121,14 @@
 
 <script setup>
 import Header from '../components/Header.vue';
-import {ref, watch} from 'vue'
+import {ref, watch, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
-const vaccine_status = ref('')
-const vaccine_stage = ref('')
-const waiting_for = ref('')
-const vaccineErrorMessage = ref(null)
 
+const vaccine_status = ref('')
+const vaccineErrorMessage = ref(null)
 const vaccineStatusError = () => {
   if(vaccine_status.value === '') {
     vaccineErrorMessage.value = false
@@ -146,16 +144,68 @@ watch(vaccine_status, () =>{
   }
 })
 
+const vaccination_stage = ref('')
+const vaccinationStageErrorMessage = ref(null)
+const vaccineStageCheckFunc = () => {
+  if(vaccination_stage.value === '' && vaccine_status.value === 'true'){
+    vaccinationStageErrorMessage.value = false
+    return false
+  } else return true
+}
+watch(vaccination_stage, () => {
+  if(vaccination_stage.value !== ''){
+    vaccinationStageErrorMessage.value = true
+  }
+})
+
+
+
+const waiting_for = ref('')
+const waitingForErrorMessage = ref(null)
+const waitingForCheckFunc = () => {
+  if(waiting_for.value === '' && vaccine_status.value === 'false'){
+    waitingForErrorMessage.value = false
+    return false
+  } else return true
+}
+watch(waiting_for, () => {
+  if(waiting_for.value !== '' & waitingForErrorMessage.value === false){
+    waitingForErrorMessage.value = true
+  }
+})
+
+ 
+
 
 const onPreviousPage = () => {
   router.push('/covid')
 }
 
 const onNextPage = () => {
-  if(vaccineStatusError()){
+  const vaccineStatusCheck = vaccineStatusError()
+  const vaccinationStageCheck = vaccineStageCheckFunc()
+  const waitingForCheck = waitingForCheckFunc()
+
+  if(vaccineStatusCheck && vaccinationStageCheck && waitingForCheck){
+    localStorage.setItem('had_vaccine', vaccine_status.value)
+    localStorage.setItem('vaccination_stage', vaccination_stage.value)
+    localStorage.setItem('i_am_waiting', waiting_for.value)
     router.push('/office')
   }
 }
+
+onMounted(() => {
+  if(localStorage.getItem('had_vaccine')){
+    vaccine_status.value = localStorage.getItem('had_vaccine')
+
+  }
+  if(localStorage.getItem('vaccination_stage')){
+    vaccination_stage.value = localStorage.getItem('vaccination_stage')
+  }
+  if(localStorage.getItem('i_am_waiting')){
+    waiting_for.value = localStorage.getItem('i_am_waiting')
+  }
+})
 
 
 </script>
