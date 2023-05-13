@@ -54,14 +54,14 @@
           >
           <label for="once_in_a_month">თვეში ერთხელ</label>
         </div>
-        <h2 :class="{errorMessage: what_about_meetings_in_live_error === false}">
+        <h2 :class="{errorMessage: number_of_days_from_office_error === false}">
           კვირაში რამდენი დღე ისურვებდი ოფისიდან <br/> მუშაობას?*
         </h2>
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="zero"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="0"
           >
@@ -69,9 +69,9 @@
         </div>
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="one"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="1"
           >
@@ -79,9 +79,9 @@
         </div> 
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="two"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="2"
           >
@@ -89,9 +89,9 @@
         </div> 
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="three"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="3"
           >
@@ -99,9 +99,9 @@
         </div> 
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="four"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="4"
           >
@@ -109,9 +109,9 @@
         </div> 
         <div class="input-box">
           <input
-            v-model="what_about_meetings_in_live"
+            v-model="number_of_days_from_office"
             id="five"
-            name="what_about_meetings_in_live"
+            name="number_of_days_from_office"
             type="radio"
             value="5"
           >
@@ -121,14 +121,26 @@
           რას ფიქრობ ფიზიკურ შეკრებებზე?
         </h2>
         <div class="textarea-box">
-          <textarea rows="10" cols="60"></textarea>
+          <textarea 
+            v-model="what_about_meetings_in_live" 
+            id="what_about_meetings_in_live" 
+            name="what_about_meetings_in_live" 
+            rows="10" 
+            cols="60"
+          ></textarea>
         </div>
         <h2>
           რას ფიქრობ არსებულ გარემოზე: <br/>
           რა მოგწონს, რას დაამატებდი, რას შეცვლიდი?
         </h2>
         <div class="textarea-box">
-          <textarea rows="10" cols="60"></textarea>
+          <textarea 
+            v-model="tell_us_your_opinion_about_us"
+            id="tell_us_your_opinion_about_us"
+            name="tell_us_your_opinion_about_us"
+            rows="10" 
+            cols="60"
+            ></textarea>
         </div>
         <div class="finish-box">
           <button class="finish-btn" @click.prevent="finish()">დასრულება</button>   
@@ -147,10 +159,12 @@
 <script setup>
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
-import {ref, watch  } from 'vue'
+import {ref, watch, onMounted  } from 'vue'
 
 const router = useRouter()
 const formContainer = ref(null)
+const what_about_meetings_in_live = ref('')
+const tell_us_your_opinion_about_us = ref('')
 
 
 
@@ -169,35 +183,35 @@ watch(non_formal_meetings , () => {
 })
 
 
-const what_about_meetings_in_live = ref('')
-const what_about_meetings_in_live_error =ref(null)
-const what_about_meetings_in_live_validation = () => {
-  if (what_about_meetings_in_live.value === '') {
-    what_about_meetings_in_live_error.value = false
+const number_of_days_from_office = ref('')
+const number_of_days_from_office_error =ref(null)
+const number_of_days_from_office_validation = () => {
+  if (number_of_days_from_office.value === '') {
+    number_of_days_from_office_error.value = false
     return false
   } else {return true}
 }
-watch(what_about_meetings_in_live, () => {
-  if(what_about_meetings_in_live.value !== '') {
-    what_about_meetings_in_live_error.value = true
+watch(number_of_days_from_office, () => {
+  if(number_of_days_from_office.value !== '') {
+    number_of_days_from_office_error.value = true
   }
 })
-
- 
- 
 
 
 const onPreviousPage = () => {
   router.push('/vaccine')
 }
 
- 
 
 const finish = () => {
-  const non_formal_meetings_status = non_formal_meetings_validation();
-  const what_about_meetings_in_live = what_about_meetings_in_live_validation();
+  const formalMeetingsCheck = non_formal_meetings_validation();
+  const daysFromOfficeCheck = number_of_days_from_office_validation();
 
-  if( non_formal_meetings_status &&  what_about_meetings_in_live){
+  if( formalMeetingsCheck &&  daysFromOfficeCheck){
+    localStorage.setItem('non_formal_meetings', non_formal_meetings.value)
+    localStorage.setItem('number_of_days_from_office', number_of_days_from_office.value)
+    localStorage.setItem('what_about_meetings_in_live', what_about_meetings_in_live.value)
+    localStorage.setItem('tell_us_your_opinion_about_us', tell_us_your_opinion_about_us.value)
     router.push('/thanks')
   } else {
 
@@ -206,7 +220,9 @@ const finish = () => {
       behavior: 'smooth'
 
     })
-  }
+}
+
+
 }
 
 </script>
