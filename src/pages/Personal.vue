@@ -64,6 +64,7 @@
 import Header from '../components/Header.vue';
 import { useRouter} from 'vue-router'
 import {ref, watch} from 'vue'
+import { onMounted } from 'vue';
 
 let trySubmit = false
 
@@ -149,9 +150,24 @@ const onNextPage = () => {
   const emailStatus = emailCheckFunc()
 
   if(nameStatus && surnameStatus && emailStatus) {
+    localStorage.setItem('first_name', name.value);
+    localStorage.setItem('last_name', surname.value);
+    localStorage.setItem('email', email.value);
     router.push('/covid')
   }
 }
+
+onMounted(() => {
+  if(localStorage.getItem('first_name')){
+    name.value = localStorage.getItem('first_name')
+  }
+  if(localStorage.getItem('last_name')) {
+    surname.value =localStorage.getItem('last_name')
+  }
+  if(localStorage.getItem('email')) {
+    email.value = localStorage.getItem('email')
+  }
+})
 
 </script>
 

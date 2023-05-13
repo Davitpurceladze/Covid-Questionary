@@ -10,7 +10,7 @@
             id="covid_yes"
             name="covid_status"
             type="radio"
-            value="covid_yes"
+            value="yes"
           >
           <label for="covid_yes">კი</label> 
         </div>
@@ -20,7 +20,7 @@
             id="covid_no"
             name="covid_status"
             type="radio"
-            value="covid_no"
+            value="no"
           >
           <label for="covid_no">არა</label>
         </div>
@@ -30,56 +30,59 @@
           id="covid_now"
           name="covid_status"
           type="radio"
-          value="covid_now"
+          value="have_right_now"
           >
           <label for="covid_now">ახლა მაქვს</label> 
         </div>
-        <h2 class="test-question" :class="{active: covid_status === 'covid_yes'}">ანტისხეულების ტესტი გაქვს გაკეთებული?*</h2>
-        <div class="input-box test-box" :class="{active: covid_status === 'covid_yes'}">
+        <h2 class="test-question" :class="{active: covid_status === 'yes'},{errorMessage: testErrorMessage === false}" >ანტისხეულების ტესტი გაქვს გაკეთებული?*</h2>
+        <div class="input-box test-box" :class="{active: covid_status === 'yes'}">
           <input
             v-model="test_status"
             id="test_yes"
             name="test_status"
             type="radio"
-            value="test_yes"
+            value="true"
           >
           <label for="test_yes">კი</label> 
         </div>
-        <div class="input-box test-box" :class="{active: covid_status === 'covid_yes'}">
+        <div class="input-box test-box" :class="{active: covid_status === 'yes'}">
           <input
             v-model="test_status"
             id="test_no"
             name="test_status"
             type="radio"
-            value="test_no"
+            value="false"
           >
           <label for="test_no">არა</label> 
         </div>
-        <h2 class="test-amount-title" :class="{active : test_status === 'test_yes' && covid_status === 'covid_yes'}">
+        <h2 class="test-amount-title" :class="{active : test_status === 'true' && covid_status === 'yes'}">
           თუ გახსოვს, გთხოვ მიუთითე ტესტის მიახლოებითი რიცხვი და ანტისხეულების რაოდენობა*
         </h2>
         <input
-          :class="{active : test_status === 'test_yes' && covid_status === 'covid_yes'}"
+          :class="{active : test_status === 'true' && covid_status === 'yes'}"
+          v-model="antibodies_test_date"
           id="test_date"
           name="test_date"
           placeholder="რიცხვი"
           type="text"
         >
         <input
-          :class="{active : test_status === 'test_yes' && covid_status === 'covid_yes'}"
+          :class="{active : test_status === 'true' && covid_status === 'yes'}"
+          v-model="antibodies_amount"
           id="amount"
           name="amount"
           placeholder="ანტისხეულეის რაოდენობა"
           type="text"
         >
-        <h2 class="covid_date" :class="{active: test_status === 'test_no' && covid_status === 'covid_yes'}">მიუთითე მიახლოებითი პერიოდი (დღე/თვე/წელი) როდის გქონდა Covid-19*</h2>
+        <h2 class="covid_date" :class="{active: test_status === 'false' && covid_status === 'yes'},{errorMessage: covidDateErrorMessage === false}">მიუთითე მიახლოებითი პერიოდი (დღე/თვე/წელი) როდის გქონდა Covid-19*</h2>
         <input
-          :class="{active: test_status === 'test_no' && covid_status === 'covid_yes'}"
+          :class="{active: test_status === 'false' && covid_status === 'yes'}"
+          v-model="covid_date"
           id="covid_date"
           class="covid_date"
           name="covid_date"
           placeholder="დღე/თვე/წელი"
-          type="text"
+          type="date"
         >
       </form>
       <img src="../assets/Group 4.png" alt="temperature" class="info-img">
@@ -105,22 +108,16 @@ import {ref, watch} from 'vue'
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
+
+
 const covid_status = ref('')
-const test_status = ref('')
 const covidErrorMessage = ref(null)
-
-
-const covidStatusError = () => {
+const covidStatusCheckFunc = () => {
   if(covid_status.value === '') {
     covidErrorMessage.value = false
     return false
-  } else {
-    covidErrorMessage.value = true
-    return true
-  }
-
-} 
-
+  }else return true
+}
 watch(covid_status, () => {
   if(covid_status.value !== '' && covidErrorMessage.value === false) {
     covidErrorMessage.value = true
@@ -128,8 +125,54 @@ watch(covid_status, () => {
   }
 })
 
+
+
+const test_status = ref('')
+const testErrorMessage = ref(null)
+const testStatusCheckFunc = () => {
+  if(covid_status.value === 'yes' && test_status.value === '') {
+    testErrorMessage.value = false
+    return false
+  } else return true
+}
+watch(test_status, () => {
+  if(test_status.value !== '' && testErrorMessage.value === false) {
+    testErrorMessage.value = true
+  }
+})
+
+
+const covid_date = ref('')
+const covidDateErrorMessage = ref(null)
+const covidDateCheckFunc = () => {
+  if(covid_status.value === 'yes' && test_status.value === 'false' && covid_date.value === ''){
+    covidDateErrorMessage.value = false
+    return false
+  } return true
+}
+watch(covid_date, () => {
+  if(covid_date.value !== '' && covidDateErrorMessage.value === false) {
+    covidDateErrorMessage.value = true
+  }
+})
+
+
+const antibodies_test_date = ref('')
+const antibodies_amount = ref('')
+
+
+
 const onNextPage = () => {
-  if(covidStatusError()) {
+  const covidCheck = covidStatusCheckFunc()
+  const testCheck = testStatusCheckFunc()
+  const covidDateCheck = covidDateCheckFunc()
+
+  if(covidCheck && testCheck && covidDateCheck) {
+    localStorage.setItem('had_covid', covid_status.value)
+    localStorage.setItem('had_antibody_test', test_status.value)
+    localStorage.setItem('covid_sickness_date', covid_date.value)
+    localStorage.setItem('antibodies_test_date', antibodies_test_date.value)
+    localStorage.setItem('antibodies_amount', antibodies_amount.value)
     router.push('/vaccine')
   }
 }
@@ -207,7 +250,25 @@ form{
   width: 850px;
 }
 
-form input[type="text"]{
+form input[type='date']{
+  margin-top: 8px;
+  width: 513px;
+  height: 50px;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 21.73px;
+  color: var(--darkText);
+  outline: none;
+  border: 0.8px solid var(--darkText);
+  background-color: transparent;
+  padding: 11px 20px 9px 20px;
+  margin-left: 20px;
+  display: none;
+
+
+}
+
+form input[type="text"] {
   margin-top: 8px;
   width: 513px;
   height: 50px;
@@ -223,6 +284,9 @@ form input[type="text"]{
   display: none;
 }
 form input[type="text"].active{
+  display: block;
+}
+form input[type="date"].active{
   display: block;
 }
 
